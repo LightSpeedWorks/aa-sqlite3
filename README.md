@@ -48,13 +48,16 @@ const aaSqlite3 = require('aa-sqlite3');
   await db.exec('DROP TABLE IF EXISTS users');
   await db.exec('CREATE TABLE IF NOT EXISTS users(name TEXT UNIQUE, age INTEGER)');
 
-  await db.run('INSERT INTO users(name, age) VALUES($name, $age)', { $name: 'Kaz', $age: 57 });
-  await db.run('INSERT INTO users(name, age) VALUES(?, ?)', 'Leo', 13);
+  await db.run('INSERT INTO users(name, age) VALUES($name, $age)',
+    { $name: 'Kaz', $age: 57 });
+  await db.run('INSERT INTO users(name, age) VALUES(?, ?)',
+    'Leo', 13);
 
   const rows = await db.all('SELECT * FROM users');
   console.log('db.all: =>', rows.length, 'rows:', rows);
 
-  const row = await db.get('SELECT * FROM users WHERE name = $name', { $name: 'Leo' });
+  const row = await db.get('SELECT * FROM users WHERE name = $name',
+    { $name: 'Leo' });
   console.log('db.get: ->', row);
 
   const nRows = await db.each('SELECT * FROM users',
@@ -105,7 +108,8 @@ const aaSqlite3 = require('aa-sqlite3');
   // db.on('profile', (sql, msec) => console.log('profile:', sql, msec, 'msec'));
 
   await db.exec('DROP TABLE IF EXISTS users');
-  await db.exec('CREATE TABLE IF NOT EXISTS users(name TEXT PRIMARY KEY, age INTEGER) WITHOUT rowid');
+  await db.exec('CREATE TABLE IF NOT EXISTS users' +
+    '(name TEXT PRIMARY KEY, age INTEGER) WITHOUT rowid');
   await db.exec('CREATE INDEX IF NOT EXISTS users_ix01 ON users(name, age)');
 
   await db.exec('BEGIN IMMEDIATE');
@@ -116,7 +120,8 @@ const aaSqlite3 = require('aa-sqlite3');
   const rows = await db.all('SELECT * FROM users');
   console.log('         Database.all: =>', rows.length, 'rows:', rows);
 
-  const row = await db.get('SELECT * FROM users WHERE name = $name', { $name: 'Leo' });
+  const row = await db.get('SELECT * FROM users WHERE name = $name',
+    { $name: 'Leo' });
   console.log('         Database.get: ->', row);
 
   const nRow = await db.each('SELECT * FROM users', (err, row) => {
