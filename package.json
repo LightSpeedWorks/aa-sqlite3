@@ -1,6 +1,6 @@
 {
   "name": "aa-sqlite3",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "async await with sqlite3",
   "main": "aa-sqlite3.js",
   "scripts": {
