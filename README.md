@@ -39,39 +39,39 @@ const sqlite3 = require('sqlite3').verbose();
 const aaSqlite3 = require('aa-sqlite3');
 
 (async () => {
-	// Simple example:
-	const db = aaSqlite3(new sqlite3.Database('./test.db'));
+  // Simple example:
+  const db = aaSqlite3(new sqlite3.Database('./test.db'));
 
-	// db.on('trace', (sql) => console.log('trace:', sql));
-	db.on('profile', (sql, msec) => console.log('profile:', sql, msec, 'msec'));
+  // db.on('trace', (sql) => console.log('trace:', sql));
+  db.on('profile', (sql, msec) => console.log('profile:', sql, msec, 'msec'));
 
-	await db.exec('DROP TABLE IF EXISTS users');
-	await db.exec('CREATE TABLE IF NOT EXISTS users(name TEXT UNIQUE, age INTEGER)');
+  await db.exec('DROP TABLE IF EXISTS users');
+  await db.exec('CREATE TABLE IF NOT EXISTS users(name TEXT UNIQUE, age INTEGER)');
 
-	await db.run('INSERT INTO users(name, age) VALUES($name, $age)', { $name: 'Kaz', $age: 57 });
-	await db.run('INSERT INTO users(name, age) VALUES(?, ?)', 'Leo', 13);
+  await db.run('INSERT INTO users(name, age) VALUES($name, $age)', { $name: 'Kaz', $age: 57 });
+  await db.run('INSERT INTO users(name, age) VALUES(?, ?)', 'Leo', 13);
 
-	const rows = await db.all('SELECT * FROM users');
-	console.log('db.all: =>', rows.length, 'rows:', rows);
+  const rows = await db.all('SELECT * FROM users');
+  console.log('db.all: =>', rows.length, 'rows:', rows);
 
-	const row = await db.get('SELECT * FROM users WHERE name = $name', { $name: 'Leo' });
-	console.log('db.get: ->', row);
+  const row = await db.get('SELECT * FROM users WHERE name = $name', { $name: 'Leo' });
+  console.log('db.get: ->', row);
 
-	const nRows = await db.each('SELECT * FROM users',
-		(err, row) => console.log('db.each: ->', err ? err : row));
-	console.log('db.each: =>', nRows, 'rows');
+  const nRows = await db.each('SELECT * FROM users',
+    (err, row) => console.log('db.each: ->', err ? err : row));
+  console.log('db.each: =>', nRows, 'rows');
 
-	const st = await db.prepare('SELECT * FROM users WHERE name = ?');
-	console.log('st.get: ->', await st.get('Leo'));
-	console.log('st.get: ->', await st.get('Kaz'));
-	await st.finalize();
+  const st = await db.prepare('SELECT * FROM users WHERE name = ?');
+  console.log('st.get: ->', await st.get('Leo'));
+  console.log('st.get: ->', await st.get('Kaz'));
+  await st.finalize();
 
-	console.log('db.get(all): =>', await Promise.all([
-		db.get('SELECT * FROM users WHERE name = $name', { $name: 'Leo' }),
-		db.get('SELECT * FROM users WHERE name = ?', 'Kaz'),
-	]));
+  console.log('db.get(all): =>', await Promise.all([
+    db.get('SELECT * FROM users WHERE name = $name', { $name: 'Leo' }),
+    db.get('SELECT * FROM users WHERE name = ?', 'Kaz'),
+  ]));
 
-	await db.close();
+  await db.close();
 })().catch(console.error);
 ```
 
@@ -84,114 +84,114 @@ const sqlite3 = require('sqlite3').verbose();
 const aaSqlite3 = require('aa-sqlite3');
 
 (async () => {
-	// Example with options: trace, profile, etc...
-	const db = aaSqlite3(new sqlite3.Database('./test.db'),
-		{ // options
-			trace: (sql, method, ctorName) =>
-				console.log(`  trace: ${ctorName}.${method}:`, sql),
-			profile: (sql, msec, method, ctorName) =>
-				console.log(`profile: ${ctorName}.${method}:`, sql, msec, 'msec'),
-			// usePromise: true, // default: false
-			asyncMethods: [ // awaitable methods
-				'run', 'exec', 'get', 'all', 'each',
-				'close', 'map', 'loadExtension',
-				'bind', 'reset', 'finalize',
-			],
-			traceMethods: [ // traceable methods for trace and profile
-				'run', 'exec', 'get', 'all', 'each', 'map',
-			],
-		});
-	// db.on('trace', (sql) => console.log('trace:', sql));
-	// db.on('profile', (sql, msec) => console.log('profile:', sql, msec, 'msec'));
+  // Example with options: trace, profile, etc...
+  const db = aaSqlite3(new sqlite3.Database('./test.db'),
+    { // options
+      trace: (sql, method, ctorName) =>
+        console.log(`  trace: ${ctorName}.${method}:`, sql),
+      profile: (sql, msec, method, ctorName) =>
+        console.log(`profile: ${ctorName}.${method}:`, sql, msec, 'msec'),
+      // usePromise: true, // default: false
+      asyncMethods: [ // awaitable methods
+        'run', 'exec', 'get', 'all', 'each',
+        'close', 'map', 'loadExtension',
+        'bind', 'reset', 'finalize',
+      ],
+      traceMethods: [ // traceable methods for trace and profile
+        'run', 'exec', 'get', 'all', 'each', 'map',
+      ],
+    });
+  // db.on('trace', (sql) => console.log('trace:', sql));
+  // db.on('profile', (sql, msec) => console.log('profile:', sql, msec, 'msec'));
 
-	await db.exec('DROP TABLE IF EXISTS users');
-	await db.exec('CREATE TABLE IF NOT EXISTS users(name TEXT PRIMARY KEY, age INTEGER) WITHOUT rowid');
-	await db.exec('CREATE INDEX IF NOT EXISTS users_ix01 ON users(name, age)');
+  await db.exec('DROP TABLE IF EXISTS users');
+  await db.exec('CREATE TABLE IF NOT EXISTS users(name TEXT PRIMARY KEY, age INTEGER) WITHOUT rowid');
+  await db.exec('CREATE INDEX IF NOT EXISTS users_ix01 ON users(name, age)');
 
-	await db.exec('BEGIN IMMEDIATE');
-	await db.run('INSERT INTO users(name, age) VALUES(?, ?)', 'Kaz', 57);
-	await db.run('INSERT INTO users(name, age) VALUES(?, ?)', 'Leo', 13);
-	await db.exec('COMMIT');
+  await db.exec('BEGIN IMMEDIATE');
+  await db.run('INSERT INTO users(name, age) VALUES(?, ?)', 'Kaz', 57);
+  await db.run('INSERT INTO users(name, age) VALUES(?, ?)', 'Leo', 13);
+  await db.exec('COMMIT');
 
-	const rows = await db.all('SELECT * FROM users');
-	console.log('         Database.all: =>', rows.length, 'rows:', rows);
+  const rows = await db.all('SELECT * FROM users');
+  console.log('         Database.all: =>', rows.length, 'rows:', rows);
 
-	const row = await db.get('SELECT * FROM users WHERE name = $name', { $name: 'Leo' });
-	console.log('         Database.get: ->', row);
+  const row = await db.get('SELECT * FROM users WHERE name = $name', { $name: 'Leo' });
+  console.log('         Database.get: ->', row);
 
-	const nRow = await db.each('SELECT * FROM users', (err, row) => {
-		if (err) console.log('each:', err);
-		else console.log('         Database.each: ->', row);
-		db.interrupt(); // if you want to abort long transaction
-	});
-	console.log('         Database.each: =>', nRow, 'rows');
+  const nRow = await db.each('SELECT * FROM users', (err, row) => {
+    if (err) console.log('each:', err);
+    else console.log('         Database.each: ->', row);
+    db.interrupt(); // if you want to abort long transaction
+  });
+  console.log('         Database.each: =>', nRow, 'rows');
 
-	const map = await db.map('SELECT * FROM users');
-	console.log('         Database.map: #>', map);
+  const map = await db.map('SELECT * FROM users');
+  console.log('         Database.map: #>', map);
 
-	{
-		await db.exec('BEGIN IMMEDIATE');
-		await db.run('DELETE FROM users WHERE name = ?', 'Kaz');
-		await db.run('DELETE FROM users WHERE name = ?', 'Leo');
+  {
+    await db.exec('BEGIN IMMEDIATE');
+    await db.run('DELETE FROM users WHERE name = ?', 'Kaz');
+    await db.run('DELETE FROM users WHERE name = ?', 'Leo');
 
-		const st = await db.prepare('INSERT INTO users(name, age) VALUES($name, $age)');
-		await st.run({ $name: 'Taro', $age: 30 });
-		await st.run({ $name: 'Hanako', $age: 20 });
-		await st.finalize();
-		await db.exec('COMMIT');
-	}
+    const st = await db.prepare('INSERT INTO users(name, age) VALUES($name, $age)');
+    await st.run({ $name: 'Taro', $age: 30 });
+    await st.run({ $name: 'Hanako', $age: 20 });
+    await st.finalize();
+    await db.exec('COMMIT');
+  }
 
-	{
-		const st = await db.prepare('SELECT * FROM users');
-		console.log('         Statement.all: =>', await st.all());
-		await st.finalize();
-	}
+  {
+    const st = await db.prepare('SELECT * FROM users');
+    console.log('         Statement.all: =>', await st.all());
+    await st.finalize();
+  }
 
-	{
-		const st = await db.prepare('SELECT * FROM users WHERE name = $name');
-		console.log('         Statement.get: ->', await st.get({ $name: 'Taro' }));
-		console.log('         Statement.get: ->', await st.get({ $name: 'Hanako' }));
-		await st.finalize();
-	}
+  {
+    const st = await db.prepare('SELECT * FROM users WHERE name = $name');
+    console.log('         Statement.get: ->', await st.get({ $name: 'Taro' }));
+    console.log('         Statement.get: ->', await st.get({ $name: 'Hanako' }));
+    await st.finalize();
+  }
 
-	{
-		const st = await db.prepare('SELECT * FROM users WHERE name = $name');
-		await st.bind({ $name: 'Taro' });
-		console.log('         Statement.all: =>', await st.all());
-		await st.bind({ $name: 'Hanako' });
-		console.log('         Statement.all: =>', await st.all());
-		await st.finalize();
-	}
+  {
+    const st = await db.prepare('SELECT * FROM users WHERE name = $name');
+    await st.bind({ $name: 'Taro' });
+    console.log('         Statement.all: =>', await st.all());
+    await st.bind({ $name: 'Hanako' });
+    console.log('         Statement.all: =>', await st.all());
+    await st.finalize();
+  }
 
-	{
-		const st = await db.prepare('SELECT * FROM users WHERE name = @name');
-		console.log('         Statement.get: ->', await st.get({ '@name': 'Taro' }));
-		await st.finalize();
-	}
+  {
+    const st = await db.prepare('SELECT * FROM users WHERE name = @name');
+    console.log('         Statement.get: ->', await st.get({ '@name': 'Taro' }));
+    await st.finalize();
+  }
 
-	{
-		const st = await db.prepare('SELECT * FROM users WHERE name = :name');
-		console.log('         Statement.get: ->', await st.get({ ':name': 'Hanako' }));
-		await st.finalize();
-	}
+  {
+    const st = await db.prepare('SELECT * FROM users WHERE name = :name');
+    console.log('         Statement.get: ->', await st.get({ ':name': 'Hanako' }));
+    await st.finalize();
+  }
 
-	{
-		const st = await db.prepare('SELECT * FROM users WHERE name = ?');
-		console.log('         Statement.get: ->', await st.get('Leo'), '(not found!)');
-		await st.finalize();
-	}
+  {
+    const st = await db.prepare('SELECT * FROM users WHERE name = ?');
+    console.log('         Statement.get: ->', await st.get('Leo'), '(not found!)');
+    await st.finalize();
+  }
 
-	const all = await Promise.all([
-		db.get('SELECT * FROM users WHERE name = ?', 'Taro'),
-		db.get('SELECT * FROM users WHERE name = ?', 'Hanako'),
-	]);
-	console.log('         Database.get: =>', all);
+  const all = await Promise.all([
+    db.get('SELECT * FROM users WHERE name = ?', 'Taro'),
+    db.get('SELECT * FROM users WHERE name = ?', 'Hanako'),
+  ]);
+  console.log('         Database.get: =>', all);
 
-	console.log('         Database.close');
-	await db.close();
-	console.log('         Example.end');
+  console.log('         Database.close');
+  await db.close();
+  console.log('         Example.end');
 
-	// aaSqlite3({}, { getActualOptions: (opts) => console.log('default:', opts) });
+  // aaSqlite3({}, { getActualOptions: (opts) => console.log('default:', opts) });
 })().catch(console.error);
 ```
 
