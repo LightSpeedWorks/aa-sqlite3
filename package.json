@@ -1,0 +1,31 @@
+{
+  "name": "aa-sqlite3",
+  "version": "0.0.0",
+  "description": "async await with sqlite3",
+  "main": "aa-sqlite3.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LightSpeedWorks/aa-sqlite3.git"
+  },
+  "keywords": [
+    "sqlite",
+    "sqlite3",
+    "async",
+    "await",
+    "async-await",
+    "awaitable",
+    "thenable"
+  ],
+  "author": "LightSpeedC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LightSpeedWorks/aa-sqlite3/issues"
+  },
+  "homepage": "https://github.com/LightSpeedWorks/aa-sqlite3#readme",
+  "devDependencies": {
+    "sqlite3": "^5.1.1"
+  }
+}
